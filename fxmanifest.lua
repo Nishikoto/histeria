@@ -2,8 +2,8 @@ fx_version 'cerulean'
 game 'gta5'
 
 name 'Histeria'
-description 'Sytem of Ban and Anti-Cheat'
-version '1.0.0'
+description 'Ban System'
+version '1.1.0'
 author 'Nishikoto'
 repository 'https://github.com/Nishikoto/histeria'
 lua54 'yes'
@@ -11,8 +11,7 @@ license 'MIT'
 
 shared_scripts {
     '@ox_lib/init.lua',
-    '@jClassLib/init.lua',
-    '@jBlipLib/init.lua',
+    '@es_extended/imports.lua',
     'Common/config.lua',
 }
 
@@ -30,6 +29,4 @@ dependencies {
     'es_extended',
     'ox_lib',
     'oxmysql',
-    'jClassLib',
-    'jBlipLib'
 }
