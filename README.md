@@ -30,8 +30,6 @@ end)
 
 ---
 
-
-
 Coté client → **TriggerServerEvent('histeria:unbanUser', ...)**
 
 Coté server → **TriggerEvent('histeria:unbanUser', ...)**
@@ -49,8 +47,6 @@ end)
 ```
 
 ---
-
-
 
 Coté client → ESX.**TriggerServerCallback('histeria:infoUser', cb, ...)**
 
@@ -70,6 +66,29 @@ end)
 ```
 
 ---
+
+Coté client → **ESX.TriggerServerCallback('histeria:infoBanHistory', cb)**
+
+```lua
+RegisterCommand('banhistory', function(source, args, raw)
+	ESX.TriggerServerCallback('histeria:infoBanHistory', function(result) 
+	local table = result
+		for _,v in pairs(table) do
+			print(v.username, v.banid, v.timeban, v.author, v.reason, v.license)
+		end
+	end)
+end)
+```
+
+---
+
+## Commandes
+
+Modifiable dans la config et disponible que coté server.
+
+`/histeriaban <user> <time> <reason>` → Permet de bannnir un joueur.
+
+`/histeriaunban <banid>` → Permet de débannir un joueur.
 
 ## Crédit
 

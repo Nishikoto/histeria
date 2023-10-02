@@ -1,4 +1,15 @@
+lib.versionCheck('Nishikoto/histeria') -- check version with Github API
+
 local config = Histeria.Configurator;
+
+function _Translation(id)
+    local lang = Histeria.Translation[Histeria.Language]
+    for k,v in pairs(lang) do
+        if k == id then
+            return v;
+        end
+    end
+end
 
 local currently = os.time({
     year = os.date('%Y'),
@@ -66,7 +77,7 @@ local HisteriaServer = {
     ---@param TargetESX string ESX ID
     ---@param Message string Message of ban
     ---@param Time string Time of ban
-    BanUser = function(SourceID, SourceESX, TargetIdentifier, TargetESX, Message, Time)
+    BanUser = function(SourceID, SourceESX, TargetIdentifier, TargetESX, Message, Time, TargetName)
         local xPlayer = SourceESX
         local result = MySQL.scalar.await('SELECT 1 FROM `histeria_ban` WHERE `identifier` = ?', {TargetIdentifier})
 
@@ -79,38 +90,38 @@ local HisteriaServer = {
         else
             local BanID = config.More.prefixBanID..RandomNumb()
     
-            local getTableSQL_BanID = MySQL.query.await('SELECT * FROM `histeria_ban` WHERE `banid` = ?', {BanID})
-                
-            if getTableSQL_BanID then
-                if xPlayer == 'Console' then
-                    print('Une erreur s\'est produite, veuillez réessayer!')
-                else
-                    xPlayer.triggerEvent('client:historia:notify', 'Erreur', 'Une erreur s\'est produite, veuillez réessayer!', 'error')
+            MySQL.query('SELECT * FROM `histeria_ban` WHERE `banid` = ?', {BanID}, function(result)
+                if result then
+                    local UserIdentifier = TargetIdentifier;
+                    if SourceID == 'Console' then
+                        AuthorName = 'Console';
+                    else
+                        AuthorName = GetPlayerName(SourceID);
+                    end
+                    local CurrentlyDate = currently;
+                    local EndOfBanDate = EndBan(Time);
+                        
+                    local Insertion = MySQL.insert.await('INSERT INTO `histeria_ban` (`identifier`, `message`, `banid`, `date`, `endate`, `author`) VALUES (?,?,?,?,?,?)', {
+                        UserIdentifier, Message, BanID, CurrentlyDate, EndOfBanDate, AuthorName
+                    })
+
+                    local InsertionHistory = MySQL.insert.await('INSERT INTO `histeria_histoban` (`identifier`, `message`, `banid`, `timeban`, `author`, `username`) VALUES (?,?,?,?,?,?)', {
+                        UserIdentifier, Message, BanID, tostring(Time), AuthorName, TargetName
+                    })
+
+                    if Insertion and InsertionHistory then
+                        if xPlayer == 'Console' then
+                            print('Joueur banni avec succès.')
+                        else
+                            xPlayer.triggerEvent('client:historia:notify', 'Top 1', 'Joueur banni avec succès.', 'success')
+                            Wait(5000)
+                            TargetESX.kick('Vous avez été banni '..Time..' jours! ('..Message..')')
+                        end
+                    end                    
+
+                    print(TargetName..' has been banned by '..AuthorName)
                 end
-            end
-                
-            local UserIdentifier = TargetIdentifier;
-            if SourceID == 'Console' then
-                AuthorName = 'Console';
-            else
-                AuthorName = GetPlayerName(SourceID);
-            end
-            local CurrentlyDate = currently;
-            local EndOfBanDate = EndBan(Time);
-                
-            local Insertion = MySQL.insert.await('INSERT INTO `histeria_ban` (`identifier`, `message`, `banid`, `date`, `endate`, `author`) VALUES (?,?,?,?,?,?)', {
-                UserIdentifier, Message, BanID, CurrentlyDate, EndOfBanDate, AuthorName
-            })
-                
-            if Insertion then
-                if xPlayer == 'Console' then
-                    print('Joueur banni avec succès.')
-                else
-                    xPlayer.triggerEvent('client:historia:notify', 'Top 1', 'Joueur banni avec succès.', 'success')
-                end
-                Wait(250)
-                TargetESX.kick('Vous avez été banni '..Time..' jours! ('..Message..')')
-            end
+            end)
         end
     end,
     UnbanUser = function(xPlayer, banid)
@@ -133,24 +144,6 @@ local HisteriaServer = {
     end
 }
 
-RegisterNetEvent('histeria:console', function(type, target, msg, time)
-    source = 0
-    if source == 0 then
-        if type == nil then
-            print('Type nul')
-        else
-            if type == 'ban' then
-                local xTarget = ESX.GetPlayerFromId(target)
-                if not xTarget then return end;
-                local id = GetIdentifier(target)
-                HisteriaServer.BanUser('Console', 'Console', id.license, xTarget, msg, time)
-            elseif type == 'unban' then
-                HisteriaServer.UnbanUser('Console', target)
-            end
-        end
-    end
-end)
-
 RegisterNetEvent('histeria:banUser', function(target, msg, time)
     local more = config.More;
 
@@ -165,21 +158,24 @@ RegisterNetEvent('histeria:banUser', function(target, msg, time)
     local sourceIdentifier = GetIdentifier(_src);
     local targetIdentifier = GetIdentifier(_trg);
 
+    local TargetName = GetPlayerName(_trg);
+    local SourceName = GetPlayerName(_src);
+
     local sourceGroup = xPlayer.getGroup()
     local targetGroup = xTarget.getGroup()
 
     if sourceGroup ~= 'user' then
         if targetGroup ~= 'user' then
             if more.canBanStaff then
-                HisteriaServer.BanUser(_src, xPlayer, targetIdentifier.license, xTarget, msg, tonumber(time), false)
+                HisteriaServer.BanUser(_src, xPlayer, targetIdentifier.license, xTarget, msg, tonumber(time), TargetName)
             else
                 xPlayer.triggerEvent('client:historia:notify', 'Impossible', 'Vous ne pouvez pas bannir un staff!', 'error')
             end
         else
-            HisteriaServer.BanUser(_src, xPlayer, targetIdentifier.license, xTarget, msg, tonumber(time), false)
+            HisteriaServer.BanUser(_src, xPlayer, targetIdentifier.license, xTarget, msg, tonumber(time), TargetName)
         end
     else
-        HisteriaServer.BanUser('Console', 'Console', sourceIdentifier, xPlayer, 'Tentative de triche détecté.', 3650)
+        HisteriaServer.BanUser('Console', 'Console', sourceIdentifier, xPlayer, 'Tentative de triche détecté.', 3650, SourceName)
     end
 end)
 
@@ -278,7 +274,7 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
                         type = "Action.OpenUrl",
                         title = "Notre discord",
                         id = "discord",
-                        url = "https://discord.gg/a2FDvAra4Z"
+                        url = Histeria.Configurator.More.discordLink,
                       } }
                     } }
                 }
@@ -316,7 +312,9 @@ if config.More.enabledCommandConsoleBan then
             local user = tonumber(args[1]);
             local time = args[2];
             local msg = args[3];
-    
+            
+            local name = GtePlayerName(user)
+
             if user == nil then
                 print('Joueur non-identifie')
                 print('1')
@@ -334,7 +332,7 @@ if config.More.enabledCommandConsoleBan then
                             print('3')
                         end
                         local id = GetIdentifier(user);
-                        HisteriaServer.BanUser('Console', 'Console', id.license, target, msg, time)
+                        HisteriaServer.BanUser('Console', 'Console', id.license, target, msg, time, name)
                     end
                 else
                     print('Joueur non-identifie')
@@ -427,5 +425,32 @@ ESX.RegisterServerCallback('histeria:getifstaff', function(source, cb)
         cb(false)
     else
         cb(true)
+    end
+end)
+
+ESX.RegisterServerCallback('histeria:infoBanHistory', function(source, cb, name)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then return end;
+
+    local Send = {}
+
+    local result = MySQL.query.await('SELECT * FROM `histeria_histoban` WHERE `username` = ?', {name})
+
+    if result then
+        for k,v in pairs(result) do
+            table.insert(Send, {
+                license = v.identifier,
+                reason = v.message,
+                banid = v.banid,
+                timeban = v.timeban,
+                author = v.author,
+                name = v.username,
+            })
+        end
+        if next(result) then
+            cb(Send)
+        else
+            cb('Aucun résultat!')
+        end
     end
 end)

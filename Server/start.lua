@@ -1,2 +1,0 @@
-
-lib.versionCheck('Nishikoto/histeria')

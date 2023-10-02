@@ -21,8 +21,7 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'Server/triggers.lua',
-    'Server/start.lua'
+    'Server/triggers.lua'
 }
 
 dependencies {
