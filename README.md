@@ -94,4 +94,4 @@ Modifiable dans la config et disponible que coté server.
 
 - Créer avec [ox_lib](https://github.com/overextended/ox_lib) / [oxmysql](https://github.com/overextended/oxmysql)
 - Utilise [es_extended](https://github.com/esx-framework/esx-legacy)
-- Fichiers et dossier créer entièrement par [Nishikoto/github](https://github.com/Nishikoto)
+- Fichiers et dossier créer entièrement par [git\Nishikoto](https://github.com/Nishikoto)
