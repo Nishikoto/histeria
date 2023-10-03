@@ -84,7 +84,7 @@ end)
 
 ## Commandes
 
-Modifiable dans la config et disponible que coté server.
+Modifiable dans la config et disponible dans la console server seulement.
 
 `/histeriaban <user> <time> <reason>` → Permet de bannnir un joueur.
 
