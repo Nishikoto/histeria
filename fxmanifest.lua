@@ -3,7 +3,7 @@ game 'gta5'
 
 name 'Histeria'
 description 'Ban System'
-version '1.1.0'
+version '1.2.0'
 author 'Nishikoto'
 repository 'https://github.com/Nishikoto/histeria'
 lua54 'yes'
