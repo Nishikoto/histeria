@@ -42,7 +42,7 @@ Coté server → **TriggerEvent('histeria:unbanUser', ...)**
 RegisterCommand('unban', function(source, args, raw)
 	local banid = args[1];
 
-	TriggerServerEvent('histeria:banUser', banid)
+	TriggerServerEvent('histeria:unbanUser', banid)
 end)
 ```
 
