@@ -1,5 +1,6 @@
 ## Histeria
 
+`License MIT`
 ONLY FRENCH
 
 Cette version d'Histeria vous permet de Ban des joueurs facilement, le menu fait avec [ox_lib](https://github.com/overextended/ox_lib) vous permet d'utiliser le menu rapidement. Si vous souhaitez quand même utilisé vos menu ou créer des commandes (coté client), je vous met alors la liste des tiggers. Le tout accompagné d'une belle carte de bannissement.
