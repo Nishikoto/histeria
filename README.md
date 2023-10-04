@@ -2,7 +2,7 @@
 
 ## Histeria
 
-ONLY FRENCH
+`License MIT` `Only French`
 
 Cette version d'Histeria vous permet de Ban des joueurs facilement, le menu fait avec [ox_lib](https://github.com/overextended/ox_lib) vous permet d'utiliser le menu rapidement. Si vous souhaitez quand même utilisé vos menu ou créer des commandes (coté client), je vous met alors la liste des tiggers. Le tout accompagné d'une belle carte de bannissement.
 
@@ -44,7 +44,7 @@ Coté server → **TriggerEvent('histeria:unbanUser', ...)**
 RegisterCommand('unban', function(source, args, raw)
 	local banid = args[1];
 
-	TriggerServerEvent('histeria:banUser', banid)
+	TriggerServerEvent('histeria:unbanUser', banid)
 end)
 ```
 
@@ -86,7 +86,7 @@ end)
 
 ## Commandes
 
-Modifiable dans la config et disponible que coté server.
+Modifiable dans la config et disponible dans la console server seulement.
 
 `/histeriaban <user> <time> <reason>` → Permet de bannnir un joueur.
 
