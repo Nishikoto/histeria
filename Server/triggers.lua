@@ -409,20 +409,21 @@ end)
 
 CreateThread(function()
     while true do
-        local result = MySQL.query.await('SELECT * FROM `histeria_ban`', {})
-        if result then
-            for k,v in pairs(result) do
-                if v.endate == nil then
-                    print('Anti-Bug')
-                else
-                    if currently >= v.endate then
-                        print('unbanned')
-                        HisteriaServer.UnbanUser('Console', v.banid)
+        MySQL.query('SELECT * FROM `histeria_ban`', {}, function(result)
+            if result then
+                for k,v in pairs(result) do
+                    if v.endate == nil then
+                        print('Anti-Bug')
+                    else
+                        if currently >= v.endate then
+                            print('unbanned')
+                            HisteriaServer.UnbanUser('Console', v.banid)
+                        end
                     end
                 end
             end
-        end
-        Wait(500)
+        end)
+        Wait(1)
     end
 end)
 
