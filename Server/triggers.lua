@@ -40,7 +40,7 @@ local function RandomNumb()
     return math.random(99, 99999999999)
 end
 
-local function GetIdentifier(player)
+function GetIdentifier(player)
     local userInfo = {}
 
     local steamid  = false
@@ -70,7 +70,7 @@ local function GetIdentifier(player)
     return userInfo
 end
 
-local HisteriaServer = {
+HisteriaServer = {
     ---@param SourceID string Server ID [Source or 'Console']
     ---@param SourceESX string ESX ID
     ---@param TargetIdentifier string Identifier ESX 
@@ -112,6 +112,7 @@ local HisteriaServer = {
                     if Insertion and InsertionHistory then
                         if xPlayer == 'Console' then
                             print('Joueur banni avec succès.')
+                            TargetESX.kick('Vous avez été banni '..Time..' jours! ('..Message..')')
                         else
                             xPlayer.triggerEvent('client:historia:notify', 'Top 1', 'Joueur banni avec succès.', 'success')
                             Wait(5000)
@@ -144,6 +145,16 @@ local HisteriaServer = {
     end
 }
 
+LIBServer = {}
+
+LIBServer.BanConsole = function(xPlayer, license, reason, time)
+    HisteriaServer.BanUser('Console', 'Console', license, xPlayer, reason, time, 'Console')
+end
+
+exports('HisteriaLIB', function()
+    return LIBServer
+end)
+
 RegisterNetEvent('histeria:banUser', function(target, msg, time)
     local more = config.More;
 
@@ -175,7 +186,7 @@ RegisterNetEvent('histeria:banUser', function(target, msg, time)
             HisteriaServer.BanUser(_src, xPlayer, targetIdentifier.license, xTarget, msg, tonumber(time), TargetName)
         end
     else
-        HisteriaServer.BanUser('Console', 'Console', sourceIdentifier, xPlayer, 'Tentative de triche détecté.', 3650, SourceName)
+        LIBServer.BanConsole(xPlayer, sourceIdentifier.license, 'Tentative de cheat', 3650)
     end
 end)
 
@@ -300,8 +311,6 @@ local function OnPlayerConnecting(name, setKickReason, deferrals)
         end
     end)
 
-    
-
 end
 
 AddEventHandler("playerConnecting", OnPlayerConnecting)
@@ -345,7 +354,7 @@ if config.More.enabledCommandConsoleBan then
             local banid = args[1];
 
             if banid == nil then
-                print('BanID non renseigné')
+                print('BanID non renseigne')
             else
                 HisteriaServer.UnbanUser('Console', config.More.prefixBanID..banid)
             end
@@ -367,7 +376,7 @@ RegisterNetEvent('histeria:unbanUser', function(banid)
         HisteriaServer.UnbanUser(xPlayer, config.More.prefixBanID..banid)
         xPlayer.triggerEvent('client:historia:notify', 'Information', 'Le joueur à été débannis.', 'inform')
     else
-
+        LIBServer.BanConsole(xPlayer, sourceIdentifier.license, 'Tentative de cheat', 3650)
     end
 end)
 
@@ -407,7 +416,8 @@ CreateThread(function()
                     print('Anti-Bug')
                 else
                     if currently >= v.endate then
-                        HisteriaServer.UnbanUser('Console', config.More.prefixBanID..v.banid)
+                        print('unbanned')
+                        HisteriaServer.UnbanUser('Console', v.banid)
                     end
                 end
             end

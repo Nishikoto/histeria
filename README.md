@@ -10,9 +10,33 @@ Cette version d'Histeria vous permet de Ban des joueurs facilement, le menu fait
 
 ## Lib
 
-Coté client → **TriggerServerEvent('histeria:banUser', ...)**
+BanConsole
 
-Coté server → **TriggerEvent('histeria:banUser', ...)**
+| Position du paramètre | Nom     | Type   | Description                                |
+| ---------------------- | ------- | ------ | ------------------------------------------ |
+| 1                      | xPlayer | table  | Permet de kick le joueur.                  |
+| 2                      | License | string | Permet d'enregistrer la license du joueur. |
+| 3                      | Raison  | string | Raison du ban                              |
+| 4                      | Temps   | string | Temps de ban (en jours)                    |
+
+```lua
+local Histeria = exports['Histeria']:HisteriaLIB()
+
+RegisterNetEvent('giveItem', function()
+	local xPlayer = ESX.GetPlayerFromId(source)
+	if xPlayer.getGroup() ~= 'user' then
+		--code
+	else
+		Histeria.BanConsole(xPlayer, xPlayer.getIdentifier(), 'Cheat', '3650')
+	end
+end)
+```
+
+---
+
+
+
+Coté client → **TriggerServerEvent('histeria:banUser', ...)**
 
 | Position du paramètre | Nom    | Type   | Description                           |
 | ---------------------- | ------ | ------ | ------------------------------------- |
